@@ -46,7 +46,7 @@
     <div class="ui menu">
       <div class="item">
         <div class = "ui button group">
-          <a class = "striped" v-for = "y in range(102)" @click = "year = y*30-1000">&nbsp;</a>
+          <a class = "striped" v-for = "y in range(102)" @click = "year = y*30-1000" :key="y">&nbsp;</a>
         </div>
       </div>
     </div>
@@ -182,6 +182,5 @@ export default {
 .striped:nth-child(odd) {
   background-color: pink;
 }
-
 
 </style>
