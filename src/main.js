@@ -5,12 +5,11 @@ import App from './App'
 import router from './router'
 import VueResource from 'vue-resource'
 
-require('semantic-ui-css/semantic.css')
-
-
 import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
 import { Icon } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+
+require('semantic-ui-css/semantic.css')
 
 Vue.component('l-map', LMap)
 Vue.component('l-tile-layer', LTileLayer)

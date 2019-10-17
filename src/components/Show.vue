@@ -1,38 +1,33 @@
 <template>
   <div class="hello">
     <h1>{{ msg }} {{ $route.params.url }}</h1>
-      <l-map ref = "myMap" style="height: 400px; width: 100%" :zoom="zoom" :center="center">
-        <l-tile-layer :url="url"></l-tile-layer>
-        <l-marker v-for = "(d, index) in data" :lat-lng="markerLatLng(d)">        
-          <l-icon
-            :icon-size="dynamicSize"
-            :icon-anchor="dynamicAnchor"
-            :icon-url="d.img" >
-          </l-icon>
-        </l-marker>
-      </l-map>
-      <div class="ui container">  
-      <table class = "ui fixed single line celled striped table">
-        <tr v-for = "(d, index) in data" :key = "d" v-show="index > 0">
-          <img class="ui small image" :src="d.img" />
-          {{ d.name }} （公元 {{d.birth}} ~ {{d.death}}）
-        </tr>
-      </table>
-    </div>
+    <l-map ref = "myMap" style="height: 400px; width: 100%" :zoom="zoom" :center="center">
+      <l-tile-layer :url="url"></l-tile-layer>
+      <l-marker :lat-lng="latLng"></l-marker>
+      <l-marker v-for = "(d, index) in data" :lat-lng="markerLatLng(d)":key="d"> 
+        <l-icon
+          :icon-size="dynamicSize"
+          :icon-anchor="dynamicAnchor"
+          :icon-url="d.img" >
+        </l-icon>
+        <l-tooltip>{{d.name}}</l-tooltip>
+      </l-marker>
+    </l-map>
   </div>
 </template>
 
 <script>
 
-import {LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
+import { LMap, LTileLayer, LMarker, LIcon, LTooltip } from 'vue2-leaflet'
 
 export default {
   name: 'Show',
   components: {
-      LMap,
-      LTileLayer,
-      LMarker,
-      LIcon
+    LMap,
+    LTileLayer,
+    LMarker,
+    LIcon,
+    LTooltip
   },
   data () {
     return {
@@ -41,15 +36,16 @@ export default {
       url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       zoom: 2,
       center: [47.313220, -1.319482],
-      latLng: [47.313220, -1.319482]
+      latLng: [47.313220, -1.319482],
+      iconSize: 50
     }
   },
   computed: {
     dynamicSize () {
-      return [this.iconSize, this.iconSize * 1.15];
+      return [this.iconSize, this.iconSize * 1.15]
     },
     dynamicAnchor () {
-      return [this.iconSize / 2, this.iconSize * 1.15];
+      return [this.iconSize / 2, this.iconSize * 1.15]
     }
   },
   methods: {
@@ -78,7 +74,7 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
-      this.$refs.myMap.mapObject.ANY_LEAFLET_MAP_METHOD();
+      this.$refs.myMap.mapObject.ANY_LEAFLET_MAP_METHOD()
     })
     this.$http.get('https://ethercalc.org/' + this.$route.params.url + '.csv').then((response) => {
       console.log(response)
@@ -91,10 +87,15 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style>
 
 .hello {
 
+}
+
+.leaflet-marker-icon {
+  border-radius: 50%;
+  position: relative; /* Affects Leaflet behaviour */
 }
 
 </style>
