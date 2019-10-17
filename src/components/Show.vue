@@ -1,6 +1,15 @@
 <template>
   <div class="hello">
     <div class="ui menu">
+      <div class="item">
+        <div class="ui search">
+        <div class="ui icon input">
+          <input class="prompt" type="text" placeholder="搜詢" v-model="myKey">
+          <i class="search icon"></i>
+        </div>
+        <div class="results"></div>
+      </div>
+      </div>
       <div class="item ui button group">
         <a class="ui green button" @click = "speedup(-10)">
           <i class="angle double left icon"/>
@@ -70,6 +79,7 @@ export default {
   },
   data () {
     return {
+      myKey: '',
       aliveOnly: false,
       year: 2019,
       speed: 0,
@@ -108,9 +118,18 @@ export default {
     countD () {
       var a = this.aliveOnly
       var y = this.year
-      return this.data.filter(function (d) {
+      var ans = this.data.filter(function (d) {
         return !a || (d.birth < y && d.death > y)
       })
+
+      if (this.myKey) {
+        var k = this.myKey
+        ans = ans.filter(function (d) {
+          return JSON.stringify(d).match(new RegExp(k))
+        })
+      }
+
+      return ans
     },
     speedup (n) {
       this.speed += n
