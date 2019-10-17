@@ -1,24 +1,62 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }} {{ $route.params.url }}</h1>
-    <l-map ref = "myMap" style="height: 400px; width: 100%" :zoom="zoom" :center="center">
+    <div class="ui menu">
+      <div class="item ui button group">
+        <a class="ui green button" @click = "speedup(-10)">
+          <i class="angle double left icon"/>
+        </a>
+        <a class="ui green button" @click = "speedup(-1)">
+          <i class="angle left icon"/>
+        </a>
+        <input class = "ui button" type="text" name="" v-model = "year">
+        <a class="ui red button" @click = "speed = 0">
+          ||
+        </a>
+        <a class="ui green button" @click = "speedup(1)">
+          <i class="angle right icon"/>
+        </a>
+        <a class="ui green button" @click = "speedup(10)">
+          <i class="angle double right icon"/>
+        </a>
+      </div>
+      <div class="item">
+        {{speed}}
+      </div>
+      <div class="item">
+        <div class="ui checkbox">
+          <input type="checkbox" name="" v-model="aliveOnly">
+          <label>並世查詢</label>
+        </div>
+      </div>
+    </div>
+    <l-map ref = "myMap" style="height: 420px; width: 100%" :zoom="zoom" :center="center">
       <l-tile-layer :url="url"></l-tile-layer>
-      <l-marker :lat-lng="latLng"></l-marker>
-      <l-marker v-for = "(d, index) in data" :lat-lng="markerLatLng(d)":key="d"> 
+      <l-marker v-for = "d in countD()" :lat-lng="markerLatLng(d)" :key="d.name + d.img" v-if="d.name">
         <l-icon
           :icon-size="dynamicSize"
           :icon-anchor="dynamicAnchor"
-          :icon-url="d.img" >
+          :icon-url="d.img || 'https://icon-library.net/images/google-map-marker-icon/google-map-marker-icon-17.jpg'" >
         </l-icon>
-        <l-tooltip>{{d.name}}</l-tooltip>
+        <l-tooltip>{{d.name}}
+          ({{showAge(d)}})
+        </l-tooltip>
+        <l-popup :content="'<h3><a href=\'https://zh.wikipedia.org/wiki/' + d.name  + '\' target=\'_blank\'>' + d.name + '</a></h3>' + '<br/>' + showAge(d) +'<br/>' + '領域：' + d.fields + '<br/>' + '成就：' + d.works"></l-popup>
       </l-marker>
     </l-map>
+    <div class="ui menu">
+      <div class="item">
+        <div class = "ui button group">
+          <a class = "striped" v-for = "y in range(102)" @click = "year = y*30-1000">&nbsp;</a>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 
-import { LMap, LTileLayer, LMarker, LIcon, LTooltip } from 'vue2-leaflet'
+import * as L from 'leaflet'
+import { LMap, LTileLayer, LMarker, LIcon, LTooltip, LPopup } from 'vue2-leaflet'
 
 export default {
   name: 'Show',
@@ -27,12 +65,16 @@ export default {
     LTileLayer,
     LMarker,
     LIcon,
-    LTooltip
+    LTooltip,
+    LPopup
   },
   data () {
     return {
+      aliveOnly: false,
+      year: 2019,
+      speed: 0,
       msg: 'Showing',
-      data: '',
+      data: [],
       url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       zoom: 2,
       center: [47.313220, -1.319482],
@@ -49,9 +91,40 @@ export default {
     }
   },
   methods: {
+    range (r) {
+      var ans = []
+      for (var i = 0; i < r; i++) {
+        ans.push(i)
+      }
+      return ans
+    },
+    showAge (d) {
+      if (!this.aliveOnly) {
+        return (d.birth + '~' + d.death)
+      } else {
+        return (this.year - d.birth + '歲')
+      }
+    },
+    countD () {
+      var a = this.aliveOnly
+      var y = this.year
+      return this.data.filter(function (d) {
+        return !a || (d.birth < y && d.death > y)
+      })
+    },
+    speedup (n) {
+      this.speed += n
+    },
+    go () {
+      this.year = parseInt(this.year)
+      this.year += this.speed
+    },
     markerLatLng (d) {
-      console.log(d.latlngColumn.replace('"', '').replace('"', '').split('?? '))
-      return (d.latlngColumn.replace('"', '').replace('"', '').split('?? '))
+      var ans = d.latlngColumn.replace('"', '').replace('"', '').split('?? ')
+
+      if (!ans[1]) { return this.latLng }
+
+      return L.latLng(parseFloat(ans[0]), parseFloat(ans[1]))
     },
     processData (allText) {
       var allTextLines = allText.split(/\r\n|\n/)
@@ -68,7 +141,6 @@ export default {
           lines.push(tarr)
         }
       }
-      console.log(lines)
       return lines
     }
   },
@@ -77,11 +149,14 @@ export default {
       this.$refs.myMap.mapObject.ANY_LEAFLET_MAP_METHOD()
     })
     this.$http.get('https://ethercalc.org/' + this.$route.params.url + '.csv').then((response) => {
-      console.log(response)
       this.data = this.processData(response.data)
     }, (response) => {
       console.log(response)
     })
+    this.timer = setInterval(this.go, 1000)
+  },
+  beforeDestroy () {
+    clearInterval(this.timer)
   }
 }
 </script>
@@ -97,5 +172,16 @@ export default {
   border-radius: 50%;
   position: relative; /* Affects Leaflet behaviour */
 }
+
+.striped {
+  padding: 2px;
+}
+.striped:nth-child(even) {
+  background-color: red;
+}
+.striped:nth-child(odd) {
+  background-color: pink;
+}
+
 
 </style>
