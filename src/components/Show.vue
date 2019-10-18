@@ -37,6 +37,8 @@
           <label>並世查詢</label>
         </div>
       </div>
+      <a class="item" :href="'https://ethercalc.org/' + this.$route.params.url" target="_blank"><img src = "https://www.google.com/s2/favicons?domain=www.ethercalc.org"/> 原始資料
+      </a>
     </div>
     <l-map ref = "myMap" style="height: 420px; width: 100%" :zoom="zoom" :center="center">
       <l-tile-layer :url="url"></l-tile-layer>
