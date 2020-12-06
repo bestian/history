@@ -1,15 +1,36 @@
 <template>
   <div class="hello">
-    <div class="ui menu">
+    <div class="ui top menu">
       <div class="item">
         <div class="ui search">
-        <div class="ui icon input">
-          <input class="prompt" type="text" placeholder="搜詢" v-model="myKey">
-          <i class="search icon"></i>
+          <div class="ui icon input">
+            <input class="prompt" type="text" placeholder="搜詢" v-model="myKey">
+            <i class="search icon"></i>
+          </div>
+          <div class="results" v-show = "myKey">
+            <div v-for = "d in countD()" :key="d.name + d.img">
+              <img :src="d.img" class="ui mini image avatar">
+              {{d.name}}
+            </div>
+          </div>
         </div>
-        <div class="results"></div>
       </div>
+      <a class="item" :href="'https://ethercalc.net/' + this.$route.params.url" target="_blank">
+        <img class="fat-only" src = "https://www.google.com/s2/favicons?domain=www.ethercalc.net"/> 資料
+      </a>
+    </div>
+    <div class="ui top menu">
+      <div class = "item ui input">
+        <input type="text" name="" v-model = "year" />
       </div>
+      <div class="item">
+        <div class="ui checkbox">
+          <input type="checkbox" name="" v-model="aliveOnly">
+          <label>並世</label>
+        </div>
+      </div>
+    </div>
+    <div class="ui top menu">
       <div class="item ui button group">
         <a class="ui green button" @click = "speedup(-10)">
           <i class="angle double left icon"/>
@@ -17,7 +38,6 @@
         <a class="ui green button" @click = "speedup(-1)">
           <i class="angle left icon"/>
         </a>
-        <input class = "ui button" type="text" name="" v-model = "year">
         <a class="ui red button" @click = "speed = 0">
           ||
         </a>
@@ -28,17 +48,9 @@
           <i class="angle double right icon"/>
         </a>
       </div>
-      <div class="item">
+      <div class="item fat-only">
         {{speed}}
       </div>
-      <div class="item">
-        <div class="ui checkbox">
-          <input type="checkbox" name="" v-model="aliveOnly">
-          <label>並世查詢</label>
-        </div>
-      </div>
-      <a class="item" :href="'https://ethercalc.org/' + this.$route.params.url" target="_blank"><img src = "https://www.google.com/s2/favicons?domain=www.ethercalc.org"/> 原始資料
-      </a>
     </div>
     <l-map ref = "myMap" style="height: 420px; width: 100%" :zoom="zoom" :center="center">
       <l-tile-layer :url="url"></l-tile-layer>
@@ -55,11 +67,7 @@
       </l-marker>
     </l-map>
     <div class="ui menu">
-      <div class="item">
-        <div class = "ui button group">
-          <a class = "striped" v-for = "y in range(102)" @click = "year = y*30-1000" :key="y">&nbsp;</a>
-        </div>
-      </div>
+      <a class = "item striped" v-for = "y in range(102)" @click = "year = y*30-1000" :key="y"></a>
     </div>
   </div>
 </template>
@@ -166,10 +174,7 @@ export default {
     }
   },
   mounted () {
-    this.$nextTick(() => {
-      this.$refs.myMap.mapObject.ANY_LEAFLET_MAP_METHOD()
-    })
-    this.$http.get('https://ethercalc.org/' + this.$route.params.url + '.csv').then((response) => {
+    this.$http.get('https://ethercalc.net/' + this.$route.params.url + '.csv').then((response) => {
       this.data = this.processData(response.data)
     }, (response) => {
       console.log(response)
@@ -195,13 +200,21 @@ export default {
 }
 
 .striped {
-  padding: 2px;
+  padding: 2px !important;
 }
 .striped:nth-child(even) {
-  background-color: red;
+  background-color: red !important;
 }
 .striped:nth-child(odd) {
-  background-color: pink;
+  background-color: pink !important;
+}
+
+.ui.search > .results {
+  display: block;
+}
+
+.ui.menu {
+  margin: 0;
 }
 
 </style>
