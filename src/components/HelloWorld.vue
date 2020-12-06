@@ -1,8 +1,9 @@
 <template>
   <div class="hello">
+    <h1>資料來源：</h1>
     <input type="text" name="url" v-model = "url" />
     <br>
-    <router-link :to = "'/show/' + url">前往</router-link>
+    <router-link class = "ui huge green button" :to = "'/show/' + url">前往</router-link>
   </div>
 </template>
 
